@@ -1,3 +1,4 @@
+#!/usr/bin/python
 ################################################################################
 #
 # Univeral JDWP shellifier
@@ -109,6 +110,8 @@ class JDWPClient:
 
     def parse_entries(self, buf, formats, explicit=True):
         entries = []
+        index = 0
+
 
         if explicit:
             nb_entries = struct.unpack(">I", buf[:4])[0]
@@ -120,27 +123,28 @@ class JDWPClient:
             data = {}
             for fmt, name in formats:
                 if fmt == "L" or fmt == 8:
-                    data[name] = int(struct.unpack(">Q", buf[:8])[0])
-                    buf = buf[8:]
+                    data[name] = int(struct.unpack(">Q",buf[index:index+8]) [0])
+                    index += 8
                 elif fmt == "I" or fmt == 4:
-                    data[name] = int(struct.unpack(">I", buf[:4])[0])
-                    buf = buf[4:]
+                    data[name] = int(struct.unpack(">I", buf[index:index+4])[0])
+                    index += 4
                 elif fmt == 'S':
-                    l = struct.unpack(">I", buf[:4])[0]
-                    data[name] = buf[4:4+l]
-                    buf = buf[4+l:]
+                    l = struct.unpack(">I", buf[index:index+4])[0]
+                    data[name] = buf[index+4:index+4+l]
+                    index += 4+l
                 elif fmt == 'C':
-                    data[name] = ord(struct.unpack(">c", buf[:1])[0])
-                    buf = buf[1:]
-                elif fmt == 'Z': # zpecifics
-                    t = ord(struct.unpack(">c", buf[:1])[0])
-                    if t == 115: # string (objid)
-                        s = self.solve_string(buf[1:9])
+                    data[name] = ord(struct.unpack(">c", buf[index])[0])
+                    index += 1
+                elif fmt == 'Z':
+                    t = ord(struct.unpack(">c", buf[index])[0])
+                    if t == 115:
+                        s = self.solve_string(buf[index+1:index+9])
                         data[name] = s
-                        buf = buf[9:]
-                    elif t == 73: # int
-                        data[name] = struct.unpack(">I", buf[1:5])[0]
-                        buf = struct.unpack(">I", buf[5:9])
+                        index+=9
+                    elif t == 73:
+                        data[name] = struct.unpack(">I", buf[index+1:index+5])[0]
+                        buf = struct.unpack(">I", buf[index+5:index+9])
+			index=0
 
                 else:
                     print "Error"
