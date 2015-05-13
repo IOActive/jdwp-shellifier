@@ -32,6 +32,8 @@ This command will only inject Java code on the JVM and show some info like Opera
 	
 This command will actually execute the process `ncat` with the specified argument with the rights given to the running JVM.
 
+Before sending questions, make sure to read http://blog.ioactive.com/2014/04/hacking-java-debug-wire-protocol-or-how.html for full understanding of the JDWP protocol. 
+
 ## Thanks
 * Ilja Van Sprundel
 * Sebastien Macke
