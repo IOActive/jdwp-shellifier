@@ -519,7 +519,7 @@ def runtime_exec_info(jdwp, threadId):
                   "path.separator": "Path separator",
                   "user.name": "User's account name",
                   "user.home": "User's home directory",
-                  "user.dir": "User's current working directory",
+                  "user.dir": "User's current working directory"
                 }
 
     systemClass = jdwp.get_class_by_name("Ljava/lang/System;")
