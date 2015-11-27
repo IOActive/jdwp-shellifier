@@ -493,11 +493,34 @@ def runtime_exec_info(jdwp, threadId):
     # This function calls java.lang.System.getProperties() and
     # displays OS properties (non-intrusive)
     #
-    properties = {"os.name": "Operating System",
-                  "java.class.path": "ClassPath",
-                  "user.name": "User name",
-                  "user.home": "User home directory"
-                  }
+    properties = {"java.version": "Java Runtime Environment version",
+                  "java.vendor": "Java Runtime Environment vendor",
+                  "java.vendor.url": "Java vendor URL",
+                  "java.home": "Java installation directory",
+                  "java.vm.specification.version": "Java Virtual Machine specification version",
+                  "java.vm.specification.vendor": "Java Virtual Machine specification vendor",
+                  "java.vm.specification.name": "Java Virtual Machine specification name",
+                  "java.vm.version": "Java Virtual Machine implementation version",
+                  "java.vm.vendor": "Java Virtual Machine implementation vendor",
+                  "java.vm.name": "Java Virtual Machine implementation name",
+                  "java.specification.version": "Java Runtime Environment specification version",
+                  "java.specification.vendor": "Java Runtime Environment specification vendor",
+                  "java.specification.name": "Java Runtime Environment specification name",
+                  "java.class.version": "Java class format version number",
+                  "java.class.path": "Java class path",
+                  "java.library.path": "List of paths to search when loading libraries",
+                  "java.io.tmpdir": "Default temp file path",
+                  "java.compiler": "Name of JIT compiler to use",
+                  "java.ext.dirs": "Path of extension directory or directories",
+                  "os.name": "Operating system name",
+                  "os.arch": "Operating system architecture",
+                  "os.version": "Operating system version",
+                  "file.separator": "File separator",
+                  "path.separator": "Path separator",
+                  "user.name": "User's account name",
+                  "user.home": "User's home directory",
+                  "user.dir": "User's current working directory",
+                }
 
     systemClass = jdwp.get_class_by_name("Ljava/lang/System;")
     if systemClass is None:
@@ -523,13 +546,11 @@ def runtime_exec_info(jdwp, threadId):
                                 getPropertyMeth["methodId"],
                                 *data)
         if buf[0] != chr(TAG_STRING):
-            print ("[-] Unexpected returned type: expecting String")
-            return False
-
-        retId = jdwp.unformat(jdwp.objectIDSize, buf[1:1+jdwp.objectIDSize])
-        res = cli.solve_string(jdwp.format(jdwp.objectIDSize, retId))
-        print ("[+] Found %s '%s'" % (propDesc, res))
-
+            print ("[-] %s: Unexpected returned type: expecting String" % propStr)
+        else:
+            retId = jdwp.unformat(jdwp.objectIDSize, buf[1:1+jdwp.objectIDSize])
+            res = cli.solve_string(jdwp.format(jdwp.objectIDSize, retId))
+            print ("[+] Found %s '%s'" % (propDesc, res))
 
     return True
 
