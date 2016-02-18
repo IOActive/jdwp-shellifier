@@ -1,7 +1,7 @@
 #!/usr/bin/python
 ################################################################################
 #
-# Univeral JDWP shellifier
+# Universal JDWP shellifier
 #
 # @_hugsy_
 #
