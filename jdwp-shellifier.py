@@ -623,7 +623,7 @@ if __name__ == "__main__":
     parser.add_argument("--break-on", dest="break_on", type=str, metavar="JAVA_METHOD",
                         default="java.net.ServerSocket.accept", help="Specify full path to method to break on")
     parser.add_argument("--cmd", dest="cmd", type=str, metavar="COMMAND",
-                        help="Specify full path to method to break on")
+                        help="Specify command to execute remotely")
 
     args = parser.parse_args()
 
