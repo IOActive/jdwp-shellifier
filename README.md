@@ -23,11 +23,12 @@ Well, in a pretty standard way, the script only requires a Python 2 interpreter:
     --cmd COMMAND         Specify command to execute remotely (default: None)
 
 To check a specific host/port without exploitation:
+
     $ python ./jdwp-shellifier.py -t my.target.ip -p 1234 -check
 
 To target a specific host/port:
 
-	$ python ./jdwp-shellifier.py -t my.target.ip -p 1234
+    $ python ./jdwp-shellifier.py -t my.target.ip -p 1234
 	
 This command will only inject Java code on the JVM and show some info like Operating System, Java version. Since it does not execute external code/binary, it is totally safe and can be used as Proof-Of-Concept
 
