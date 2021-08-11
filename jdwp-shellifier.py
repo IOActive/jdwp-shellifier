@@ -100,7 +100,7 @@ class JDWPClient:
             if errcode :
                 raise Exception("Received errcode %d" % errcode)
 
-        buf = ""
+        buf = b""
         while len(buf) + 11 < pktlen:
             data = self.socket.recv(1024)
             if len(data):
@@ -361,7 +361,7 @@ class JDWPClient:
         if len(buf):
             return self.readstring(buf)
         else:
-            return ""
+            return b""
 
     def query_thread(self, threadId, kind):
         data = self.format(self.objectIDSize, threadId)
