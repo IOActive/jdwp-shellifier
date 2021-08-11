@@ -7,20 +7,23 @@ This exploitation script is meant to be used by pentesters against active JDWP s
 Well, in a pretty standard way, the script only requires a Python 2 interpreter:
 
 	% python ./jdwp-shellifier.py -h
-	usage: jdwp-shellifier.py [-h] -t IP [-p PORT] [--break-on JAVA_METHOD]
+	usage: jdwp-shellifier.py [-h] [-check] -t IP [-p PORT] [--break-on JAVA_METHOD]
                           [--cmd COMMAND]
 
     Universal exploitation script for JDWP by @_hugsy_
 
     optional arguments:
     -h, --help            show this help message and exit
+    -check                Check for vulnerability (default: False)
     -t IP, --target IP    Remote target IP (default: None)
     -p PORT, --port PORT  Remote target port (default: 8000)
     --break-on JAVA_METHOD
-    Specify full path to method to break on (default:
-    	java.net.ServerSocket.accept)
-    	--cmd COMMAND         Specify full path to method to break on (default:
-    		None)
+                        Specify full path to method to break on, if does not work, try:
+                        java.net.ServerSocket.accept (default: java.lang.String.indexOf)
+    --cmd COMMAND         Specify command to execute remotely (default: None)
+
+To check a specific host/port without exploitation:
+    $ python ./jdwp-shellifier.py -t my.target.ip -p 1234 -check
 
 To target a specific host/port:
 
