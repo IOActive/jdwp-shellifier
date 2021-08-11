@@ -134,10 +134,10 @@ class JDWPClient:
                     data[name] = buf[index+4:index+4+l]
                     index += 4+l
                 elif fmt == 'C':
-                    data[name] = ord(struct.unpack(">c", buf[index])[0])
+                    data[name] = struct.unpack(">B", buf[index])[0]
                     index += 1
                 elif fmt == 'Z':
-                    t = ord(struct.unpack(">c", buf[index])[0])
+                    t = struct.unpack(">B", buf[index])[0]
                     if t == 115:
                         s = self.solve_string(buf[index+1:index+9])
                         data[name] = s
